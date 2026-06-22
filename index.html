@@ -261,6 +261,16 @@ const SHOP_ORDER = ['Amorino Sevilla Avenida','Amorino Patio de los Naranjos','A
 const FLAVOR_COLORS = ['#C84B5E','#8FA871','#E3A038','#5E6FA3','#5B3A29','#B07AA8','#4D9E96','#D17C3C'];
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
+/* ================= HISTORICAL SALES (Patio de los Naranjos) =================
+ * Ventas diarias totales de mayo 2025 a mayo 2026, para comparación interanual.
+ * Fuente: archivo Histórico_Naranjos.xlsx proporcionado por el usuario.
+ *
+ * Lookup: previo-year sales for a given date are resolved via getPrevYearTotal():
+ *   1. Check Google Sheet Table1 (so 2027 automatically compares against 2026)
+ *   2. Fall back to this hardcoded lookup for the May 2025 - May 2026 gap
+ * =========================================================================== */
+const HISTORICAL_SALES = {"2025-05-01": 3715.95, "2025-05-02": 2041.1, "2025-05-03": 2552.92, "2025-05-04": 2199.7, "2025-05-05": 2295.22, "2025-05-06": 2156.7, "2025-05-07": 2112.2, "2025-05-08": 2072.9, "2025-05-09": 1977.0, "2025-05-10": 2439.14, "2025-05-11": 2340.22, "2025-05-12": 1899.02, "2025-05-13": 2298.8, "2025-05-14": 2247.6, "2025-05-15": 2388.2, "2025-05-16": 2759.12, "2025-05-17": 2894.2, "2025-05-18": 2448.52, "2025-05-19": 2434.89, "2025-05-20": 2601.22, "2025-05-21": 2401.9, "2025-05-22": 2075.5, "2025-05-23": 2253.0, "2025-05-24": 2851.02, "2025-05-25": 2454.4, "2025-05-26": 2864.0, "2025-05-27": 3009.8, "2025-05-28": 3067.3, "2025-05-29": 3057.6, "2025-05-30": 1635.5, "2025-05-31": 2936.66, "2025-06-01": 2238.8, "2025-06-02": 2460.57, "2025-06-03": 2108.7, "2025-06-04": 2378.8, "2025-06-05": 2929.3, "2025-06-06": 2644.8, "2025-06-07": 3103.4, "2025-06-08": 2693.7, "2025-06-09": 2539.1, "2025-06-10": 2173.6, "2025-06-11": 2450.0, "2025-06-12": 2218.15, "2025-06-13": 2539.25, "2025-06-14": 2644.2, "2025-06-15": 2748.49, "2025-06-16": 2303.25, "2025-06-17": 2200.42, "2025-06-18": 2284.5, "2025-06-19": 1623.22, "2025-06-20": 1968.5, "2025-06-21": 2518.74, "2025-06-22": 2048.87, "2025-06-23": 1976.84, "2025-06-24": 1965.0, "2025-06-25": 2160.77, "2025-06-26": 2361.4, "2025-06-27": 2720.7, "2025-06-28": 2716.0, "2025-06-29": 2349.3, "2025-06-30": 1879.95, "2025-07-01": 2207.52, "2025-07-02": 2145.0, "2025-07-03": 2386.87, "2025-07-04": 2270.89, "2025-07-05": 2075.89, "2025-07-06": 2219.44, "2025-07-07": 2093.92, "2025-07-08": 2089.4, "2025-07-09": 2066.5, "2025-07-10": 1750.74, "2025-07-11": 1725.7, "2025-07-12": 2260.82, "2025-07-13": 2596.3, "2025-07-14": 2152.8, "2025-07-15": 1937.0, "2025-07-16": 1551.6, "2025-07-17": 2097.2, "2025-07-18": 2016.0, "2025-07-19": 2262.9, "2025-07-20": 1958.27, "2025-07-21": 1936.05, "2025-07-22": 1680.8, "2025-07-23": 2086.49, "2025-07-24": 1963.8, "2025-07-25": 2462.87, "2025-07-26": 1974.74, "2025-07-27": 1862.9, "2025-07-28": 1833.3, "2025-07-29": 1824.25, "2025-07-30": 1829.32, "2025-07-31": 2124.27, "2025-08-01": 1895.1, "2025-08-02": 2405.3, "2025-08-03": 2240.6, "2025-08-04": 2054.55, "2025-08-05": 2246.2, "2025-08-06": 2040.8, "2025-08-07": 2198.8, "2025-08-08": 2259.82, "2025-08-09": 2010.92, "2025-08-10": 2258.1, "2025-08-11": 1913.7, "2025-08-12": 2148.38, "2025-08-13": 2270.3, "2025-08-14": 2082.82, "2025-08-15": 2180.6, "2025-08-16": 2186.0, "2025-08-17": 2385.8, "2025-08-18": 2306.85, "2025-08-19": 2160.3, "2025-08-20": 2200.7, "2025-08-21": 1891.3, "2025-08-22": 1901.7, "2025-08-23": 2318.3, "2025-08-24": 1857.6, "2025-08-25": 2086.1, "2025-08-26": 2129.3, "2025-08-27": 1655.4, "2025-08-28": 1866.1, "2025-08-29": 1911.22, "2025-08-30": 1830.32, "2025-08-31": 1938.1, "2025-09-01": 1772.2, "2025-09-02": 1745.22, "2025-09-03": 1740.2, "2025-09-04": 2129.8, "2025-09-05": 2239.75, "2025-09-06": 2375.57, "2025-09-07": 2392.22, "2025-09-08": 1939.64, "2025-09-09": 1984.87, "2025-09-10": 2016.1, "2025-09-11": 2629.92, "2025-09-12": 2459.02, "2025-09-13": 2381.5, "2025-09-14": 2594.5, "2025-09-15": 2545.12, "2025-09-16": 2638.23, "2025-09-17": 2387.99, "2025-09-18": 2405.27, "2025-09-19": 2948.8, "2025-09-20": 2562.55, "2025-09-21": 2623.5, "2025-09-22": 2340.7, "2025-09-23": 2329.84, "2025-09-24": 2269.8, "2025-09-25": 2323.5, "2025-09-26": 2750.65, "2025-09-27": 2785.6, "2025-09-28": 1775.5, "2025-09-29": 2688.68, "2025-09-30": 2948.6, "2025-10-01": 3042.45, "2025-10-02": 2570.77, "2025-10-03": 3258.5, "2025-10-04": 3270.0, "2025-10-05": 2698.8, "2025-10-06": 2505.62, "2025-10-07": 2639.8, "2025-10-08": 2771.2, "2025-10-09": 2262.2, "2025-10-10": 2721.0, "2025-10-11": 2790.1, "2025-10-12": 2653.1, "2025-10-13": 2729.77, "2025-10-14": 2563.21, "2025-10-15": 2574.97, "2025-10-16": 2526.8, "2025-10-17": 2797.05, "2025-10-18": 3050.85, "2025-10-19": 2650.35, "2025-10-20": 2419.65, "2025-10-21": 2808.4, "2025-10-22": 2786.7, "2025-10-23": 2714.6, "2025-10-24": 2932.65, "2025-10-25": 2213.02, "2025-10-26": 2289.5, "2025-10-27": 2896.57, "2025-10-28": 2292.5, "2025-10-29": 1199.02, "2025-10-30": 2631.9, "2025-10-31": 2422.35, "2025-11-01": 2152.82, "2025-11-02": 2401.8, "2025-11-03": 2324.38, "2025-11-04": 1991.57, "2025-11-05": 1528.8, "2025-11-06": 2079.4, "2025-11-07": 1724.05, "2025-11-08": 2012.36, "2025-11-09": 2011.62, "2025-11-10": 1880.9, "2025-11-11": 1923.5, "2025-11-12": 1996.42, "2025-11-13": 655.3, "2025-11-14": 936.0, "2025-11-15": 1022.92, "2025-11-16": 1709.8, "2025-11-17": 1084.3, "2025-11-18": 1151.27, "2025-11-19": 1159.78, "2025-11-20": 1048.74, "2025-11-21": 1297.1, "2025-11-22": 1496.52, "2025-11-23": 1188.5, "2025-11-24": 1534.97, "2025-11-25": 1174.24, "2025-11-26": 1098.2, "2025-11-27": 872.9, "2025-11-28": 1541.32, "2025-11-29": 1947.66, "2025-11-30": 2631.9, "2025-12-01": 1062.6, "2025-12-02": 501.02, "2025-12-03": 607.4, "2025-12-04": 510.8, "2025-12-05": 1095.7, "2025-12-06": 1938.69, "2025-12-07": 2384.0, "2025-12-08": 1006.47, "2025-12-09": 785.06, "2025-12-10": 328.9, "2025-12-11": 638.02, "2025-12-12": 639.2, "2025-12-13": 1307.1, "2025-12-14": 991.56, "2025-12-15": 485.6, "2025-12-16": 612.8, "2025-12-17": 795.67, "2025-12-18": 753.6, "2025-12-19": 604.9, "2025-12-20": 1468.87, "2025-12-21": 895.52, "2025-12-22": 1129.86, "2025-12-23": 1372.99, "2025-12-24": 1679.32, "2025-12-25": 1468.6, "2025-12-26": 1951.4, "2025-12-27": 1134.3, "2025-12-28": 2094.1, "2025-12-29": 2304.8, "2025-12-30": 1855.5, "2025-12-31": 1587.9, "2026-01-01": 2016.79, "2026-01-02": 2358.22, "2026-01-03": 1645.19, "2026-01-04": 1238.05, "2026-01-05": 812.0, "2026-01-06": 565.9, "2026-01-07": 688.55, "2026-01-08": 867.32, "2026-01-09": 935.17, "2026-01-10": 1206.8, "2026-01-11": 946.0, "2026-01-12": 797.42, "2026-01-13": 610.72, "2026-01-14": 685.2, "2026-01-15": 609.02, "2026-01-16": 821.1, "2026-01-17": 1029.2, "2026-01-18": 1080.8, "2026-01-19": 870.15, "2026-01-20": 928.55, "2026-01-21": 755.1, "2026-01-22": 656.9, "2026-01-23": 845.3, "2026-01-24": 1215.2, "2026-01-25": 1176.8, "2026-01-26": 1126.3, "2026-01-27": 674.17, "2026-01-28": 777.04, "2026-01-29": 944.1, "2026-01-30": 1041.1, "2026-01-31": 1803.9, "2026-02-01": 599.9, "2026-02-02": 954.27, "2026-02-03": 909.8, "2026-02-04": 847.6, "2026-02-05": 1449.0, "2026-02-06": 1291.97, "2026-02-07": 1007.5, "2026-02-08": 1291.75, "2026-02-09": 1338.6, "2026-02-10": 1476.0, "2026-02-11": 1103.17, "2026-02-12": 1630.4, "2026-02-13": 1329.8, "2026-02-14": 2186.27, "2026-02-15": 2543.85, "2026-02-16": 2257.0, "2026-02-17": 2665.8, "2026-02-18": 2117.4, "2026-02-19": 2127.2, "2026-02-20": 2393.77, "2026-02-21": 2800.24, "2026-02-22": 2501.22, "2026-02-23": 2209.38, "2026-02-24": 2298.4, "2026-02-25": 2208.5, "2026-02-26": 2186.1, "2026-02-27": 2427.01, "2026-02-28": 3122.4, "2026-03-01": 2600.6, "2026-03-02": 1869.09, "2026-03-03": 1903.0, "2026-03-04": 975.85, "2026-03-05": 1397.5, "2026-03-06": 1332.59, "2026-03-07": 2148.8, "2026-03-08": 1837.46, "2026-03-09": 1233.4, "2026-03-10": 1381.3, "2026-03-11": 2149.56, "2026-03-12": 2223.7, "2026-03-13": 2544.7, "2026-03-14": 2662.4, "2026-03-15": 2360.7, "2026-03-16": 2100.75, "2026-03-17": 2141.3, "2026-03-18": 1953.77, "2026-03-19": 2161.87, "2026-03-20": 2033.17, "2026-03-21": 2951.32, "2026-03-22": 2447.87, "2026-03-23": 2063.4, "2026-03-24": 2485.62, "2026-03-25": 2086.5, "2026-03-26": 2461.1, "2026-03-27": 2552.47, "2026-03-28": 2703.37, "2026-03-29": 3363.4, "2026-03-30": 3566.14, "2026-03-31": 3675.84, "2026-04-01": 4042.57, "2026-04-02": 4904.5, "2026-04-03": 4206.2, "2026-04-04": 4723.6, "2026-04-05": 3812.9, "2026-04-06": 3031.9, "2026-04-07": 2041.27, "2026-04-08": 2600.17, "2026-04-09": 2734.49, "2026-04-10": 2654.27, "2026-04-11": 2020.3, "2026-04-12": 2321.6, "2026-04-13": 2119.98, "2026-04-14": 2771.6, "2026-04-15": 2464.2, "2026-04-16": 2579.1, "2026-04-17": 2952.0, "2026-04-18": 2706.2, "2026-04-19": 2649.85, "2026-04-20": 2480.05, "2026-04-21": 2052.7, "2026-04-22": 2802.1, "2026-04-23": 1990.4, "2026-04-24": 2549.37, "2026-04-25": 2593.02, "2026-04-26": 2628.27, "2026-04-27": 2551.07, "2026-04-28": 2021.86, "2026-04-29": 2022.3, "2026-04-30": 2599.47, "2026-05-01": 2753.6, "2026-05-02": 2597.0, "2026-05-03": 2466.9, "2026-05-04": 1952.1, "2026-05-05": 1833.62, "2026-05-06": 1646.6, "2026-05-07": 1576.2, "2026-05-08": 1586.72, "2026-05-09": 1635.7, "2026-05-10": 1415.3, "2026-05-11": 1617.42, "2026-05-12": 1982.22, "2026-05-13": 1872.99, "2026-05-14": 2606.6, "2026-05-15": 2772.0, "2026-05-16": 2986.2, "2026-05-17": 2597.6, "2026-05-18": 2624.4, "2026-05-19": 2583.22, "2026-05-20": 2473.42, "2026-05-21": 2414.4, "2026-05-22": 2519.0, "2026-05-23": 2482.95, "2026-05-24": 2534.79, "2026-05-25": 1622.6, "2026-05-26": 2672.2, "2026-05-27": 2538.6, "2026-05-28": 1842.9, "2026-05-29": 2651.9, "2026-05-30": 2550.9, "2026-05-31": 2220.97};
+
 /* ================= UTILS ================= */
 function parseNum(raw){
   if (raw === null || raw === undefined) return NaN;
@@ -309,6 +319,33 @@ function monthStart(dkey){ const [y,m] = dkey.split('-'); return `${y}-${m}-01`;
 function clampDate(dkey, min, max){ if (dkey < min) return min; if (dkey > max) return max; return dkey; }
 function inRange(dkey, from, to){ return !!dkey && (!from || dkey >= from) && (!to || dkey <= to); }
 function rangeLabel(from, to){ return from === to ? dateLabel(from) : `${dateLabel(from)} → ${dateLabel(to)}`; }
+
+function prevYearKey(dkey){
+  // Exact same calendar date one year earlier — not 365 days, but year-1
+  const [y,m,d] = dkey.split('-');
+  return `${parseInt(y,10)-1}-${m}-${d}`;
+}
+
+/**
+ * Returns the total daily sales for FIXED_SHOP on prevYearKey(dkey).
+ * Priority:
+ *   1. Google Sheet Table1 (already loaded) — works automatically when the
+ *      current year's data is in the sheet (e.g. 2027 comparing vs 2026)
+ *   2. HISTORICAL_SALES constant — covers May 2025 – May 2026
+ */
+function getPrevYearTotal(dkey){
+  const pkey = prevYearKey(dkey);
+  // Check Google Sheet first
+  if (State.raw){
+    const rows = State.raw.t1.filter(r => r.dkey === pkey && r.shop === FIXED_SHOP);
+    if (rows.length){
+      const s = rows.reduce((a,r) => a + (isNaN(r.ventas)?0:r.ventas), 0);
+      if (s > 0) return s;
+    }
+  }
+  // Fall back to historical constant
+  return HISTORICAL_SALES[pkey] !== undefined ? HISTORICAL_SALES[pkey] : NaN;
+}
 function fmtEUR(n){ return isNaN(n) ? '—' : n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
 function fmtInt(n){ return isNaN(n) ? '—' : Math.round(n).toLocaleString('es-ES'); }
 function fmtPct(n,d=1){ return isNaN(n) ? '—' : n.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d})+' %'; }
@@ -623,57 +660,83 @@ function renderDailySeriesCard(shop, from, to){
 
   if (days.length < 2){
     return `<div class="card">
-      <div class="hint">${shop==='all'?'Todas las tiendas':esc(shop)} · ${rangeLabel(from,to)}</div>
+      <div class="hint">${esc(FIXED_SHOP)} · ${rangeLabel(from,to)}</div>
       <div class="empty-note">Selecciona un rango de varios días (botones rápidos arriba: 7 días, 30 días…) para ver la evolución.</div>
     </div>`;
   }
 
-  const rows = State.raw.t1.filter(r => inRange(r.dkey, from, to) && (shop === 'all' || r.shop === shop));
+  const rows = State.raw.t1.filter(r => inRange(r.dkey, from, to) && r.shop === FIXED_SHOP);
   const byDay = new Map();
   days.forEach(dd => byDay.set(dd, 0));
   rows.forEach(r => { if (!isNaN(r.ventas)) byDay.set(r.dkey, (byDay.get(r.dkey) || 0) + r.ventas); });
-
   const values = days.map(dd => byDay.get(dd) || 0);
-  const max = Math.max(...values, 1);
-  const W = 760, H = 240, padL = 14, padR = 14, padT = 18, padB = 34;
+
+  // Previous year: same calendar dates, -1 year
+  const prevValues = days.map(dd => getPrevYearTotal(dd));
+  const hasPrev = prevValues.some(v => !isNaN(v));
+
+  const allVals = values.concat(prevValues.filter(v => !isNaN(v)));
+  const max = Math.max(...allVals, 1);
+  const W = 760, H = 260, padL = 14, padR = 14, padT = 18, padB = 50;
   const innerW = W - padL - padR, innerH = H - padT - padB;
-  const stepX = innerW / (days.length - 1);
+  const stepX = days.length > 1 ? innerW / (days.length - 1) : 0;
+  const toY = v => padT + innerH - (isNaN(v) || !max ? 0 : (v / max) * innerH);
 
-  const points = values.map((v, i) => [
-    padL + i * stepX,
-    padT + innerH - (max ? (v / max) * innerH : 0)
-  ]);
+  const pts = values.map((v, i) => [padL + i * stepX, toY(v)]);
+  const prevPts = prevValues.map((v, i) => [padL + i * stepX, isNaN(v) ? null : toY(v)]);
 
-  const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const linePath = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
   const baseline = (padT + innerH).toFixed(1);
-  const areaPath = linePath +
-    ` L${points[points.length - 1][0].toFixed(1)},${baseline}` +
-    ` L${points[0][0].toFixed(1)},${baseline} Z`;
+  const areaPath = linePath + ` L${pts[pts.length-1][0].toFixed(1)},${baseline} L${pts[0][0].toFixed(1)},${baseline} Z`;
+
+  // Build previous year path, skipping gaps
+  let prevPath = '';
+  prevPts.forEach((p, i) => {
+    if (!p[1] && p[1] !== 0) return;
+    const prevPt = prevPts[i-1];
+    prevPath += (i === 0 || !prevPt || (!prevPt[1] && prevPt[1] !== 0) ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' ';
+  });
 
   const labelEvery = days.length <= 8 ? 1 : Math.ceil(days.length / 8);
-  const dots = points.map((p, i) => `<circle class="series-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#C84B5E" stroke="#FFFFFF" stroke-width="1.5"><title>${dateLabel(days[i])}: ${fmtEUR(values[i])}</title></circle>`).join('');
-  const xLabels = points.map((p, i) => (i % labelEvery === 0 || i === points.length - 1)
-    ? `<text x="${p[0].toFixed(1)}" y="${H - 12}" font-size="10" fill="#766955" text-anchor="middle">${dateLabel(days[i]).slice(0, 5)}</text>`
+  const dots = pts.map((p, i) => `<circle class="series-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#C84B5E" stroke="#FFF" stroke-width="1.5"><title>${dateLabel(days[i])}: ${fmtEUR(values[i])}</title></circle>`).join('');
+  const prevDots = hasPrev ? prevPts.map((p, i) => !p[1] && p[1] !== 0 ? '' :
+    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.5" fill="#5E6FA3" stroke="#FFF" stroke-width="1"><title>${dateLabel(prevYearKey(days[i]))}: ${fmtEUR(prevValues[i])}</title></circle>`
+  ).join('') : '';
+  const xLabels = pts.map((p, i) => (i % labelEvery === 0 || i === pts.length - 1)
+    ? `<text x="${p[0].toFixed(1)}" y="${H - 28}" font-size="10" fill="#766955" text-anchor="middle">${dateLabel(days[i]).slice(0,5)}</text>`
     : '').join('');
 
-  const total = values.reduce((a, b) => a + b, 0);
+  const total = values.reduce((a,b)=>a+b,0);
   const avg = total / values.length;
   const best = Math.max(...values);
   const bestDay = days[values.indexOf(best)];
 
+  const legend = `
+    <g transform="translate(${padL}, ${H - 16})">
+      <line x1="0" y1="-4" x2="18" y2="-4" stroke="#C84B5E" stroke-width="2.5"/>
+      <circle cx="9" cy="-4" r="3" fill="#C84B5E"/>
+      <text x="22" y="0" font-size="11" fill="#766955">Este año</text>
+      ${hasPrev ? `<line x1="80" y1="-4" x2="98" y2="-4" stroke="#5E6FA3" stroke-width="1.8" stroke-dasharray="4 3"/>
+      <circle cx="89" cy="-4" r="2.5" fill="#5E6FA3"/>
+      <text x="102" y="0" font-size="11" fill="#766955">Año anterior</text>` : ''}
+    </g>`;
+
   return `<div class="card">
-    <div class="hint">${shop==='all'?'Todas las tiendas':esc(shop)} · ${rangeLabel(from,to)} · media diaria ${fmtEUR(avg)} · mejor día ${dateLabel(bestDay)} (${fmtEUR(best)})</div>
+    <div class="hint">${esc(FIXED_SHOP)} · ${rangeLabel(from,to)} · media diaria ${fmtEUR(avg)} · mejor día ${dateLabel(bestDay)} (${fmtEUR(best)})</div>
     <svg viewBox="0 0 ${W} ${H}" class="series-svg" preserveAspectRatio="none">
       <defs>
         <linearGradient id="seriesFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#C84B5E" stop-opacity="0.28"/>
+          <stop offset="0%" stop-color="#C84B5E" stop-opacity="0.22"/>
           <stop offset="100%" stop-color="#C84B5E" stop-opacity="0.02"/>
         </linearGradient>
       </defs>
       <path d="${areaPath}" fill="url(#seriesFill)" stroke="none"/>
+      ${hasPrev && prevPath ? `<path d="${prevPath.trim()}" fill="none" stroke="#5E6FA3" stroke-width="1.8" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round" opacity="0.8"/>` : ''}
       <path d="${linePath}" fill="none" stroke="#C84B5E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${hasPrev ? prevDots : ''}
       ${dots}
       ${xLabels}
+      ${legend}
     </svg>
   </div>`;
 }
@@ -713,7 +776,25 @@ function renderKPIs(shop, from, to){
     { label:'% Sugerencias/ticket', value:fmtPct(sugPct), color:'var(--cocoa)' },
     { label:'Var. mes vs año anterior', value:fmtPct(difPct), color: (difPct>=0?'#4D7A3F':'var(--raspberry)'), note: isRange ? ('a '+dateLabel(to)) : null },
   ];
-  return `<div class="kpi-row">${cards.map(c => `
+
+  // --- YoY: same calendar period, previous year ---
+  const prevDays = [];
+  if (from && to){ let d = from; while(d <= to){ prevDays.push(d); d = shiftDate(d,1); } }
+  const prevTotals = prevDays.map(d => getPrevYearTotal(d)).filter(v => !isNaN(v));
+  const ventasPrevPeriodo = prevTotals.length ? prevTotals.reduce((a,b)=>a+b,0) : NaN;
+  const yoyPct = (!isNaN(ventasPeriodo) && !isNaN(ventasPrevPeriodo) && ventasPrevPeriodo > 0)
+    ? ((ventasPeriodo - ventasPrevPeriodo) / ventasPrevPeriodo) * 100 : NaN;
+
+  const yoyCards = [
+    { label: isRange ? 'Mismo periodo año anterior' : 'Mismo día año anterior',
+      value: fmtEUR(ventasPrevPeriodo), color:'#5E6FA3',
+      note: prevTotals.length < prevDays.length ? `${prevTotals.length}/${prevDays.length} días con datos` : null },
+    { label:'Variación interanual', value: fmtPct(yoyPct),
+      color: (!isNaN(yoyPct) && yoyPct >= 0) ? '#4D7A3F' : 'var(--raspberry)' },
+  ];
+
+  return `
+    <div class="kpi-row">${cards.map(c => `
     <div class="kpi">
       <div class="kpi-scoop" style="background:${c.color}"></div>
       <div class="kpi-body">
@@ -721,7 +802,18 @@ function renderKPIs(shop, from, to){
         <div class="kpi-value ${c.value.length>8?'small':''}">${c.value}</div>
         ${c.note ? `<div class="kpi-sub">${esc(c.note)}</div>` : ''}
       </div>
-    </div>`).join('')}</div>`;
+    </div>`).join('')}</div>
+    <div class="kpi-row" style="margin-top:10px;grid-template-columns:repeat(2,1fr);max-width:420px;">
+      ${yoyCards.map(c => `
+      <div class="kpi">
+        <div class="kpi-scoop" style="background:${c.color}"></div>
+        <div class="kpi-body">
+          <div class="kpi-label">${esc(c.label)}</div>
+          <div class="kpi-value ${c.value.length>8?'small':''}">${c.value}</div>
+          ${c.note ? `<div class="kpi-sub">${esc(c.note)}</div>` : ''}
+        </div>
+      </div>`).join('')}
+    </div>`;
 }
 function sum(arr){ const v = arr.filter(n => !isNaN(n)); return v.length ? v.reduce((a,b)=>a+b,0) : NaN; }
 
