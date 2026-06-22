@@ -434,7 +434,11 @@ function gvizJsonToRows(json){
 
 /* ================= STATE ================= */
 const FIXED_SHOP = 'Amorino Patio de los Naranjos';
-const State = { shop: FIXED_SHOP, from:null, to:null, raw:null, loading:false, error:null, lastSync:null };
+const State = { shop: FIXED_SHOP, from:null, to:null, raw:null, loading:false, error:null, lastSync:null, weather:{}, weatherFetching:false };
+
+/* Sevilla city centre coordinates */
+const WEATHER_LAT = 37.39, WEATHER_LON = -5.98;
+const RAIN_THRESHOLD = 0; // > 0 mm counts as rain
 
 /* ================= DATA LOADING ================= */
 async function fetchTab(name){
@@ -626,11 +630,106 @@ function renderError(err){
     </div>`;
 }
 
+/* ================= WEATHER (Open-Meteo, Sevilla) ================= */
+
+async function fetchWeatherIfNeeded(from, to){
+  if (!from || !to || State.weatherFetching) return;
+  const days = [];
+  let d = from; while(d <= to){ days.push(d); d = shiftDate(d,1); }
+  const missing = days.filter(d => !State.weather[d]);
+  if (!missing.length) return;
+
+  State.weatherFetching = true;
+  const wFrom = missing[0], wTo = missing[missing.length-1];
+
+  async function parseWeatherResponse(res){
+    const data = await res.json();
+    if (!data.daily) return;
+    data.daily.time.forEach((dkey,i) => {
+      const tempMax = data.daily.temperature_2m_max[i];
+      const precip  = data.daily.precipitation_sum[i];
+      // Only write if not already set by a more recent source
+      if (!State.weather[dkey]) State.weather[dkey] = { tempMax, precip, rain: precip > RAIN_THRESHOLD };
+    });
+  }
+
+  try {
+    // Archive covers everything up to ~5 days ago
+    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&start_date=${wFrom}&end_date=${wTo}&daily=temperature_2m_max,precipitation_sum&timezone=Europe%2FMadrid`;
+    const archiveRes = await fetch(archiveUrl);
+    if (archiveRes.ok) await parseWeatherResponse(archiveRes);
+  } catch(e){}
+
+  try {
+    // Forecast endpoint covers last 92 days — fills in recent dates archive may lack
+    const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&daily=temperature_2m_max,precipitation_sum&timezone=Europe%2FMadrid&past_days=92&forecast_days=1`;
+    const forecastRes = await fetch(forecastUrl);
+    if (forecastRes.ok){
+      const data = await forecastRes.json();
+      if (data.daily) data.daily.time.forEach((dkey,i) => {
+        if (dkey < wFrom || dkey > wTo) return;
+        const tempMax = data.daily.temperature_2m_max[i];
+        const precip  = data.daily.precipitation_sum[i];
+        // Forecast is authoritative for recent dates — always overwrite
+        State.weather[dkey] = { tempMax, precip, rain: precip > RAIN_THRESHOLD };
+      });
+    }
+  } catch(e){}
+
+  State.weatherFetching = false;
+  // Re-render just the weather section without a full reload
+  const el = document.getElementById('weatherKPIs');
+  if (el) el.innerHTML = buildWeatherKPIsHTML(State.from, State.to);
+}
+
+function buildWeatherKPIsHTML(from, to){
+  if (!from || !to) return '';
+  const isRange = from !== to;
+  const days = []; let d = from; while(d<=to){ days.push(d); d=shiftDate(d,1); }
+  const wDays = days.map(d => State.weather[d]).filter(w => w && w.tempMax !== null && w.tempMax !== undefined);
+  if (!wDays.length) return `<div style="font-size:12px;color:var(--ink-soft);padding:8px 0;">Cargando datos meteorológicos…</div>`;
+
+  let rainVal, tempVal;
+  if (isRange){
+    const rainy = wDays.filter(w => w.rain).length;
+    const avgT = wDays.reduce((a,w)=>a+w.tempMax,0)/wDays.length;
+    const maxT = Math.max(...wDays.map(w=>w.tempMax));
+    rainVal = `${rainy} día${rainy!==1?'s':''} de ${days.length}`;
+    tempVal = `Media ${avgT.toFixed(1)}° · Máx ${maxT.toFixed(1)}°`;
+  } else {
+    const w = State.weather[from];
+    if (!w) return `<div style="font-size:12px;color:var(--ink-soft);padding:8px 0;">Sin datos meteorológicos para este día</div>`;
+    rainVal = w.rain ? `Sí · ${w.precip.toFixed(1)} mm` : 'No';
+    tempVal = w.tempMax !== null ? `${w.tempMax.toFixed(1)} °C` : '—';
+  }
+
+  const rainColor = wDays.some(w=>w.rain) ? '#5E6FA3' : '#E3A038';
+  const tempColor = '#C84B5E';
+
+  return `<div class="kpi-row" style="margin-top:10px;grid-template-columns:repeat(2,1fr);max-width:420px;">
+    <div class="kpi">
+      <div class="kpi-scoop" style="background:${rainColor}"></div>
+      <div class="kpi-body">
+        <div class="kpi-label">${isRange ? 'Días de lluvia' : 'Lluvia'}</div>
+        <div class="kpi-value small">${esc(rainVal)}</div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-scoop" style="background:${tempColor}"></div>
+      <div class="kpi-body">
+        <div class="kpi-label">${isRange ? 'Temperatura máx.' : 'Temp. máx. del día'}</div>
+        <div class="kpi-value small">${esc(tempVal)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderAll(){
   if (!State.raw) return;
   const shop = State.shop, from = State.from, to = State.to;
   const html = `
     ${renderKPIs(shop, from, to)}
+    <div id="weatherKPIs">${buildWeatherKPIsHTML(from, to)}</div>
     <div class="section-title"><span class="swatch" style="background:var(--raspberry)"></span>Evolución diaria de ventas</div>
     ${renderDailySeriesCard(shop, from, to)}
     <div class="section-title"><span class="swatch" style="background:var(--raspberry)"></span>Ventas por hora</div>
@@ -648,6 +747,8 @@ function renderAll(){
   `;
   document.getElementById('content').innerHTML = html;
   attachSortHandler();
+  // Fetch weather async — updates #weatherKPIs in place when data arrives
+  fetchWeatherIfNeeded(from, to);
 }
 
 /* ---- Evolución diaria (serie temporal) ---- */
