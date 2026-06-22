@@ -897,7 +897,7 @@ function renderKPIs(shop, from, to){
   ];
 
   return `
-    <div class="kpi-section-label">Rendimiento del día</div>
+    <div class="kpi-section-label">${isRange ? 'Rendimiento del periodo' : 'Rendimiento del día'}</div>
     <div class="kpi-row">${cards.map(c => `
     <div class="kpi">
       <div class="kpi-scoop" style="background:${c.color}"></div>
