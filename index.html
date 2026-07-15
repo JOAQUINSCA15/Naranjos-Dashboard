@@ -366,13 +366,27 @@ function parseNum(raw){
 }
 function normDate(s){
   if (!s) return null;
-  const parts = String(s).trim().split('/');
-  if (parts.length !== 3) return null;
-  let [d,m,y] = parts.map(p=>p.trim());
-  if (!d || !m || !y) return null;
-  d = d.padStart(2,'0'); m = m.padStart(2,'0');
-  if (y.length === 2) y = '20'+y;
-  return `${y}-${m}-${d}`;
+  const str = String(s).trim();
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  if (str.includes('/')) {
+    const parts = str.split('/');
+    if (parts.length !== 3) return null;
+    let [d,m,y] = parts.map(p=>p.trim());
+    if (!d || !m || !y) return null;
+    d = d.padStart(2,'0'); m = m.padStart(2,'0');
+    if (y.length === 2) y = '20'+y;
+    return `${y}-${m}-${d}`;
+  }
+  if (/^\d+$/.test(str)) {
+    const ms = (parseInt(str,10) - 25569) * 86400000;
+    const dt = new Date(ms);
+    if (isNaN(dt.getTime())) return null;
+    return dt.getUTCFullYear() + '-' +
+      String(dt.getUTCMonth()+1).padStart(2,'0') + '-' +
+      String(dt.getUTCDate()).padStart(2,'0');
+  }
+  return null;
 }
 function dateLabel(key){
   if (!key) return '';
@@ -595,8 +609,10 @@ async function loadData(){
 
 function getDatesForShop(shop){
   if (!State.raw) return [];
-  const pool = State.raw.t2.filter(r => r.shop === FIXED_SHOP);
-  const keys = Array.from(new Set(pool.map(r => r.dkey).filter(Boolean)));
+  const t1keys = State.raw.t1.filter(r => r.shop === FIXED_SHOP).map(r => r.dkey).filter(Boolean);
+  const t2keys = State.raw.t2.filter(r => r.shop === FIXED_SHOP).map(r => r.dkey).filter(Boolean);
+  const histKeys = Object.keys(HISTORICAL_SALES);
+  const keys = Array.from(new Set([...t1keys, ...t2keys, ...histKeys]));
   keys.sort((a,b) => b.localeCompare(a));
   return keys;
 }
